@@ -6,13 +6,24 @@ Containerized deployment setup for the Conduit application with a Django backend
 
 - [Quickstart](#quickstart)
 - [Project Structure](#project-structure)
-- [Requirements](#requirements)
+- [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [Environment Variables](#environment-variables)
 - [Services and Ports](#services-and-ports)
 - [API Reference](#api-reference)
 - [Logs](#logs)
 - [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+
+Before running the stack on a VM, make sure the following tools and conditions are available:
+
+- Docker is installed and the daemon is running
+- Docker Compose is available via `docker compose`
+- Git is installed on the VM
+- SSH access to the VM is configured
+- Inbound traffic for port `8282` is allowed
+- Inbound traffic for port `8000` is allowed if direct backend access is required
 
 ## Quickstart
 
@@ -21,9 +32,8 @@ These steps are intended for deployment on a VM server.
 1. Clone the repository on the VM:
 
    ```bash
-   git clone https://github.com/FatihYalcin42/conduit-container2.0.git
+   git clone git@github.com:FatihYalcin42/conduit-container2.0.git
    cd conduit-container2.0
-   git checkout container-repo-submission
    ```
 
 2. Create the runtime environment file:
@@ -61,13 +71,6 @@ These steps are intended for deployment on a VM server.
 └── README.md              Project documentation
 ```
 
-## Requirements
-
-- A Linux VM with Docker and Docker Compose installed
-- Access to the VM via SSH
-- Open inbound ports for `8282` and, if needed, `8000`
-- Git installed on the VM
-
 ## Usage
 
 ### Start the application
@@ -103,25 +106,7 @@ docker compose down -v
 
 The repository uses a root `.env` file. Do not store secrets directly in the Dockerfiles or application source when runtime configuration can be injected through `.env`.
 
-Important variables:
-
-- `POSTGRES_DB`
-- `POSTGRES_USER`
-- `POSTGRES_PASSWORD`
-- `DJANGO_SECRET_KEY`
-- `DJANGO_DEBUG`
-- `DJANGO_ALLOWED_HOSTS`
-- `DJANGO_DB_ENGINE`
-- `DJANGO_DB_NAME`
-- `DJANGO_DB_USER`
-- `DJANGO_DB_PASSWORD`
-- `DJANGO_DB_HOST`
-- `DJANGO_DB_PORT`
-- `DJANGO_CORS_ORIGIN_WHITELIST`
-- `FRONTEND_API_URL`
-- `BACKEND_PORT`
-- `FRONTEND_PORT`
-- `POSTGRES_PORT`
+The required environment variables are documented in [.env.example](.env.example).
 
 Example workflow:
 
