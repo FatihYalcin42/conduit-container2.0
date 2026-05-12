@@ -7,13 +7,22 @@ import {
 } from "@angular/common/http";
 import { Observable } from "rxjs";
 
+declare global {
+  interface Window {
+    __env?: {
+      apiUrl?: string;
+    };
+  }
+}
+
 @Injectable({ providedIn: "root" })
 export class ApiInterceptor implements HttpInterceptor {
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const apiReq = req.clone({ url: `https://api.realworld.io/api${req.url}` });
+    const apiBaseUrl = window.__env?.apiUrl || "http://localhost:8000/api";
+    const apiReq = req.clone({ url: `${apiBaseUrl}${req.url}` });
     return next.handle(apiReq);
   }
 }
