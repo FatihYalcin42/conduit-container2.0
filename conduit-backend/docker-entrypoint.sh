@@ -25,7 +25,14 @@ for attempt in range(30):
         )
         connection.close()
         sys.exit(0)
-    except Exception:
+    except Exception as exc:
+        print(
+            "Database connection attempt {attempt}/30 failed: {error}".format(
+                attempt=attempt + 1,
+                error=exc,
+            ),
+            file=sys.stderr,
+        )
         time.sleep(2)
 
 print("Database is not reachable after waiting.", file=sys.stderr)
