@@ -21,7 +21,7 @@ export class ApiInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const apiBaseUrl = window.__env?.apiUrl || "http://localhost:8000/api";
+    const apiBaseUrl = window.__env?.apiUrl || "/api";
     const apiReq = req.clone({ url: `${apiBaseUrl}${req.url}` });
     return next.handle(apiReq);
   }
