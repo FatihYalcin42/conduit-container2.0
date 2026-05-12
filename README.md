@@ -122,7 +122,7 @@ The deployment is orchestrated by `docker-compose.yml` and includes three servic
 
 - `frontend`: Angular application served by Nginx on port `8282`
 - `backend`: Django application served by Gunicorn on port `8000`
-- `database`: PostgreSQL service on port `5432`
+- `database`: PostgreSQL service available only inside the Docker network on port `5432`
 
 Persistent data is stored through the `postgres_data` Docker volume.
 
