@@ -1,0 +1,204 @@
+# Conduit Container 2.0
+
+Containerized deployment setup for the Conduit application with a Django backend, Angular frontend, and PostgreSQL database. This repository packages the app for VM-based hosting with Docker Compose and environment-driven configuration.
+
+## Table of Contents
+
+- [Quickstart](#quickstart)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Usage](#usage)
+- [Environment Variables](#environment-variables)
+- [Services and Ports](#services-and-ports)
+- [API Reference](#api-reference)
+- [Logs](#logs)
+- [Troubleshooting](#troubleshooting)
+
+## Quickstart
+
+These steps are intended for deployment on a VM server.
+
+1. Clone the repository on the VM:
+
+   ```bash
+   git clone https://github.com/FatihYalcin42/conduit-container2.0.git
+   cd conduit-container2.0
+   git checkout container-repo-submission
+   ```
+
+2. Create the runtime environment file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Build and start all services:
+
+   ```bash
+   docker compose up --build -d
+   ```
+
+4. Open the hosted frontend in the browser:
+
+   ```text
+   http://<VM-IP>:8282
+   ```
+
+5. Check container status:
+
+   ```bash
+   docker compose ps
+   ```
+
+## Project Structure
+
+```text
+.
+├── conduit-backend/       Django API application
+├── conduit-frontend/      Angular frontend application
+├── docker-compose.yml     Service orchestration for VM hosting
+├── .env.example           Environment template
+└── README.md              Project documentation
+```
+
+## Requirements
+
+- A Linux VM with Docker and Docker Compose installed
+- Access to the VM via SSH
+- Open inbound ports for `8282` and, if needed, `8000`
+- Git installed on the VM
+
+## Usage
+
+### Start the application
+
+```bash
+docker compose up --build -d
+```
+
+### Stop the application
+
+```bash
+docker compose down
+```
+
+### Rebuild after code changes
+
+```bash
+docker compose up --build -d
+```
+
+### Remove containers and volumes
+
+```bash
+docker compose down -v
+```
+
+### Access the application on the VM
+
+- Frontend: `http://<VM-IP>:8282`
+- Backend API: `http://<VM-IP>:8000/api`
+
+## Environment Variables
+
+The repository uses a root `.env` file. Do not store secrets directly in the Dockerfiles or application source when runtime configuration can be injected through `.env`.
+
+Important variables:
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_DB_ENGINE`
+- `DJANGO_DB_NAME`
+- `DJANGO_DB_USER`
+- `DJANGO_DB_PASSWORD`
+- `DJANGO_DB_HOST`
+- `DJANGO_DB_PORT`
+- `DJANGO_CORS_ORIGIN_WHITELIST`
+- `FRONTEND_API_URL`
+- `BACKEND_PORT`
+- `FRONTEND_PORT`
+- `POSTGRES_PORT`
+
+Example workflow:
+
+```bash
+cp .env.example .env
+```
+
+Then adjust values in `.env` for the VM IP, allowed hosts, and production secrets.
+
+## Services and Ports
+
+The deployment is orchestrated by `docker-compose.yml` and includes three services:
+
+- `frontend`: Angular application served by Nginx on port `8282`
+- `backend`: Django application served by Gunicorn on port `8000`
+- `database`: PostgreSQL service on port `5432`
+
+Persistent data is stored through the `postgres_data` Docker volume.
+
+## API Reference
+
+Main backend entrypoint:
+
+- Base URL: `http://<VM-IP>:8000/api`
+
+Example endpoints:
+
+- `GET /api/articles`
+- `POST /api/users/login`
+- `POST /api/users`
+- `GET /api/profiles/:username`
+
+The frontend consumes the backend through the runtime-configured `FRONTEND_API_URL`.
+
+## Logs
+
+View all service logs:
+
+```bash
+docker compose logs
+```
+
+View logs for a single service:
+
+```bash
+docker compose logs frontend
+docker compose logs backend
+docker compose logs database
+```
+
+Save logs to a file:
+
+```bash
+docker logs conduit-backend > conduit-backend-logs.txt
+```
+
+## Troubleshooting
+
+### Frontend is not reachable
+
+- Check whether the VM firewall allows port `8282`
+- Run `docker compose ps`
+- Inspect frontend logs with `docker compose logs frontend`
+
+### Backend cannot connect to the database
+
+- Verify `DJANGO_DB_*` values in `.env`
+- Check database logs with `docker compose logs database`
+- Restart the stack after changes:
+
+  ```bash
+  docker compose down
+  docker compose up --build -d
+  ```
+
+### Django host or CORS errors
+
+- Update `DJANGO_ALLOWED_HOSTS`
+- Update `DJANGO_CORS_ORIGIN_WHITELIST`
+- Recreate the containers after editing `.env`
