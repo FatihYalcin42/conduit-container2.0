@@ -42,10 +42,11 @@ These steps are intended for deployment on a VM server.
    cp .env.example .env
    ```
 
-3. Build and start all services:
+3. Pull and start all services:
 
    ```bash
-   docker compose up --build -d
+   docker compose pull
+   docker compose up -d
    ```
 
 4. Open the hosted frontend in the browser:
@@ -76,7 +77,8 @@ These steps are intended for deployment on a VM server.
 ### Start the application
 
 ```bash
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
 
 ### Stop the application
@@ -85,10 +87,11 @@ docker compose up --build -d
 docker compose down
 ```
 
-### Rebuild after code changes
+### Pull updated images after a new deployment
 
 ```bash
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
 
 ### Remove containers and volumes
@@ -114,14 +117,14 @@ Example workflow:
 cp .env.example .env
 ```
 
-Then adjust values in `.env` for the VM IP, allowed hosts, and production secrets.
+Then adjust values in `.env` for the image names, VM IP or domain, allowed hosts, and production secrets.
 
 ## Services and Ports
 
 The deployment is orchestrated by `docker-compose.yml` and includes three services:
 
-- `frontend`: Angular application served by Nginx on port `8282`
-- `backend`: Django application served by Gunicorn on port `8000`
+- `frontend`: Angular application served by Nginx on port `8282`, pulled from `FRONTEND_IMAGE`
+- `backend`: Django application served by Gunicorn on port `8000`, pulled from `BACKEND_IMAGE`
 - `database`: PostgreSQL service available only inside the Docker network on port `5432`
 
 Persistent data is stored through the `postgres_data` Docker volume.
@@ -179,7 +182,8 @@ docker logs conduit-backend > conduit-backend-logs.txt
 
   ```bash
   docker compose down
-  docker compose up --build -d
+  docker compose pull
+  docker compose up -d
   ```
 
 ### Django host or CORS errors
