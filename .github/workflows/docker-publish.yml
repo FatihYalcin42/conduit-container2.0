@@ -3,7 +3,11 @@ name: Deploy to VM
 on:
   push:
     branches:
+      - container-repo-submission
+  pull_request:
+    branches:
       - main
+
 
 env:
   REGISTRY: ghcr.io
