@@ -1,4 +1,3 @@
-```yaml
 name: Deploy to VM
 
 on:
@@ -73,4 +72,3 @@ jobs:
             echo "FRONTEND_IMAGE=${{ env.FRONTEND_IMAGE }}:${{ github.sha }}" >> .deploy.env
             docker compose --env-file .deploy.env pull
             docker compose --env-file .deploy.env up -d
-```
