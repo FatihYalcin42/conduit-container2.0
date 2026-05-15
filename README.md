@@ -10,6 +10,7 @@ Containerized deployment setup for the Conduit application with a Django backend
 - [Usage](#usage)
 - [Environment Variables](#environment-variables)
 - [Services and Ports](#services-and-ports)
+- [Deployment Workflow](#deployment-workflow)
 - [API Reference](#api-reference)
 - [Logs](#logs)
 - [Troubleshooting](#troubleshooting)
@@ -22,6 +23,7 @@ Before running the stack on a VM, make sure the following tools and conditions a
 - Docker Compose is available via `docker compose`
 - Git is installed on the VM
 - SSH access to the VM is configured
+- GitHub Actions secrets are configured for the deployment workflow
 - Inbound traffic for port `8282` is allowed
 - Inbound traffic for port `8000` is allowed if direct backend access is required
 
@@ -36,18 +38,13 @@ These steps are intended for deployment on a VM server.
    cd conduit-container2.0
    ```
 
-2. Create the runtime environment file:
+2. Create the runtime environment file and adjust the Django or database settings as needed:
 
    ```bash
    cp .env.example .env
    ```
 
-3. Pull and start all services:
-
-   ```bash
-   docker compose pull
-   docker compose up -d
-   ```
+3. Trigger the GitHub Actions deployment workflow from the PR branch or by updating the pull request.
 
 4. Open the hosted frontend in the browser:
 
@@ -77,8 +74,8 @@ These steps are intended for deployment on a VM server.
 ### Start the application
 
 ```bash
-docker compose pull
-docker compose up -d
+docker compose --env-file .deploy.env pull
+docker compose --env-file .deploy.env up -d
 ```
 
 ### Stop the application
@@ -90,8 +87,8 @@ docker compose down
 ### Pull updated images after a new deployment
 
 ```bash
-docker compose pull
-docker compose up -d
+docker compose --env-file .deploy.env pull
+docker compose --env-file .deploy.env up -d
 ```
 
 ### Remove containers and volumes
@@ -117,17 +114,35 @@ Example workflow:
 cp .env.example .env
 ```
 
-Then adjust values in `.env` for the image names, VM IP or domain, allowed hosts, and production secrets.
+Then adjust values in `.env` for the VM IP or domain, allowed hosts, and production secrets.
 
 ## Services and Ports
 
 The deployment is orchestrated by `docker-compose.yml` and includes three services:
 
-- `frontend`: Angular application served by Nginx on port `8282`, pulled from `FRONTEND_IMAGE`
-- `backend`: Django application served by Gunicorn on port `8000`, pulled from `BACKEND_IMAGE`
+- `frontend`: Angular application served by Nginx on port `8282`, using `FRONTEND_IMAGE`
+- `backend`: Django application served by Gunicorn on port `8000`, using `BACKEND_IMAGE`
 - `database`: PostgreSQL service available only inside the Docker network on port `5432`
 
 Persistent data is stored through the `postgres_data` Docker volume.
+
+## Deployment Workflow
+
+Deployment is automated with GitHub Actions via [docker-publish.yml](.github/workflows/docker-publish.yml).
+
+- On pull requests to `main`, the workflow builds and pushes backend and frontend images to `ghcr.io`
+- Images are tagged with the current commit SHA, not `latest`
+- The deploy job connects to the VM over SSH
+- The workflow writes the exact image tags into a temporary `.deploy.env` file on the VM
+- `docker compose --env-file .deploy.env pull` and `docker compose --env-file .deploy.env up -d` start the deployment without rebuilding on the server
+
+Required GitHub Actions secrets:
+
+- `SSH_HOST`
+- `SSH_USER`
+- `SSH_PRIVATE_KEY`
+- `SSH_PORT`
+- `GHCR_PAT`
 
 ## API Reference
 
@@ -182,8 +197,8 @@ docker logs conduit-backend > conduit-backend-logs.txt
 
   ```bash
   docker compose down
-  docker compose pull
-  docker compose up -d
+  docker compose --env-file .deploy.env pull
+  docker compose --env-file .deploy.env up -d
   ```
 
 ### Django host or CORS errors
