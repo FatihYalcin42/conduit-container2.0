@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
-    image: ${BACKEND_IMAGE:-ghcr.io/your-github-user/conduit-backend:latest}
+    image: ${BACKEND_IMAGE:-ghcr.io/fatihyalcin42/conduit-backend:latest}
     container_name: conduit-backend
     restart: unless-stopped
     env_file:
@@ -26,7 +26,7 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
 
   frontend:
-    image: ${FRONTEND_IMAGE:-ghcr.io/your-github-user/conduit-frontend:latest}
+    image: ${FRONTEND_IMAGE:-ghcr.io/fatihyalcin42/conduit-frontend:latest}
     container_name: conduit-frontend
     restart: unless-stopped
     env_file:
