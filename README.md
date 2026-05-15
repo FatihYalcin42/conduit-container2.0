@@ -131,13 +131,19 @@ Persistent data is stored through the `postgres_data` Docker volume.
 Deployment is automated with GitHub Actions via [docker-publish.yml](.github/workflows/docker-publish.yml).
 
 - On pull requests to `main`, the workflow builds and pushes backend and frontend images to `ghcr.io`
-- Images are tagged with the current commit SHA, not `latest`
-- The deploy job connects to the VM over SSH
-- The workflow writes the exact image tags into a temporary `.deploy.env` file on the VM
-- `docker compose --env-file .deploy.env pull` and `docker compose --env-file .deploy.env up -d` start the deployment without rebuilding on the server
+- Images are tagged with both the current commit SHA and `latest`
+- The deploy job creates a deployment `.env` file in the GitHub runner from repository secrets
+- The workflow copies `docker-compose.yml` and the generated `.env` file to the VM
+- The VM then pulls the referenced images and starts the stack with `docker compose pull` and `docker compose up -d`
 
 Required GitHub Actions secrets:
 
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `DJANGO_SECRET_KEY`
+- `DJANGO_ALLOWED_HOSTS`
+- `DJANGO_CORS_ORIGIN_WHITELIST`
 - `SSH_HOST`
 - `SSH_USER`
 - `SSH_PRIVATE_KEY`
